@@ -6,9 +6,10 @@
     "notes": [
         "Logitech only provides a fixed URL that always points to the latest installer, so there is no hash, checkver or autoupdate.",
         "Requires an elevated shell because G HUB installs to %ProgramFiles%\\LGHUB.",
-        "To update, run: scoop reinstall lghub"
+        "To update, run: scoop reinstall ghub"
     ],
     "url": "https://download01.logi.com/web/ftp/pub/techsupport/gaming/lghub_installer.exe#/setup.exe",
+    "hash": "4b2f9903b27c8434afcd52fe65845632fcae47cc50432fb6b3b1637144e811e1",
     "installer": {
         "script": [
             "$source = \"$env:ProgramFiles\\LGHUB\"",
