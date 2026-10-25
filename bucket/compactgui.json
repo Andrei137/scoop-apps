@@ -1,17 +1,10 @@
 {
-    "version": "3.8.0",
+    "version": "4.0.0-beta.12",
     "description": "CompactGUI is a standalone user interface that makes the Windows 10 compact.exe function easier to use.",
-    "homepage": "https://github.com/ImminentFate/CompactGUI",
+    "homepage": "https://github.com/IridiumIO/CompactGUI",
     "license": "GPL-3.0-only",
-    "suggest": {
-        ".NET Desktop Runtime 9.0": "versions/windowsdesktop-runtime-9.0"
-    },
-    "architecture": {
-        "64bit": {
-            "url": "https://github.com/ImminentFate/CompactGUI/releases/download/v3.8.0/CompactGUI.exe",
-            "hash": "f21963a68c25b72d59a8431af2e0e98b4a701e87c4f4a47ec4363238d7d384d2"
-        }
-    },
+    "url": "https://github.com/IridiumIO/CompactGUI/releases/download/v4.0.0-beta.12/CompactGUI.exe",
+    "hash": "7e03ef59fbd8638ef96ac911b77518bc03e20903acfa21be17c31ca6e2bcdf33",
     "bin": "CompactGUI.exe",
     "shortcuts": [
         [
@@ -20,15 +13,15 @@
         ]
     ],
     "checkver": {
-        "github": "https://api.github.com/repos/ImminentFate/CompactGUI/releases",
-        "jsonpath": "$[*].tag_name",
-        "regex": "v([\\d.]+)\""
+        "github": "https://api.github.com/repos/IridiumIO/CompactGUI/releases/latest",
+        "jp": "$.assets[*].browser_download_url",
+        "regex": "/releases/download/v([\\w.-]+)/CompactGUI.exe"
     },
     "autoupdate": {
-        "architecture": {
-            "64bit": {
-                "url": "https://github.com/ImminentFate/CompactGUI/releases/download/v$version/CompactGUI.exe"
-            }
+        "url": "https://github.com/IridiumIO/CompactGUI/releases/download/v$version/CompactGUI.exe",
+        "hash": {
+            "url": "https://github.com/IridiumIO/CompactGUI/releases/tag/v$version/",
+            "regex": "SHA-256</span>:\\s+<span\\sclass=\"pl-s\">([a-fA-F0-9]{64})"
         }
     }
 }
