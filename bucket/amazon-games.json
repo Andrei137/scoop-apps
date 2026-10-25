@@ -8,8 +8,7 @@
     "hash": "b5d74ab5a63cfbef2756e9c445b1e939e51a328f17af301b5d7b9a8e9b1d4141",
     "installer": {
         "script": [
-            "$UserProfile = [Environment]::GetFolderPath(\"userprofile\")",
-            "$filepath = \"$UserProfile\\AppData\\Local\\Amazon Games\\App\\Amazon Games.exe\"",
+            "$filepath = \"$LocalAppData\\Amazon Games\\App\\Amazon Games.exe\"",
             "if(((Test-Path -Path $filepath -PathType Leaf) -eq $false) -or ((Get-Command $filepath).Version -lt [System.Version]\"$version\"))",
             "{",
             "   Get-Process 'Amazon Games' -ErrorAction SilentlyContinue | Stop-Process -Force",
