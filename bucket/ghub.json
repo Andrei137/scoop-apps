@@ -36,7 +36,6 @@
             "# Link the original location to the Scoop dir",
             "New-Item -ItemType Junction -Path $source -Target $dir | Out-Null",
             "Get-Service -Name '*lghub*' -ErrorAction SilentlyContinue | Start-Service -ErrorAction SilentlyContinue",
-
             "Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force -ErrorAction SilentlyContinue"
         ]
     },
