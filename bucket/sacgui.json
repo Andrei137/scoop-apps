@@ -9,7 +9,7 @@
     "pre_install": [
         "$dll = \"$dir\\_bin\\ALI213\\steam_api.dll\"",
         "$admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
-        "if ($admin) { Add-MpPreference -ExclusionPath $dll } else { Write-Warning \"Not running as admin, Defender exclusion skipped: $dll\" }",
+        "if ($admin) { powershell.exe -NoProfile -Command \"Add-MpPreference -ExclusionPath '$dll'\"; if ($LASTEXITCODE -ne 0) { Write-Warning 'Defender exclusion failed' } } else { Write-Warning \"Not running as admin, Defender exclusion skipped: $dll\" }",
         "$password = 'cs.rin.ru'",
         "7z x \"$dir\\SACGUI.pkg\" \"-p$password\" \"-o$dir\" -y | Out-Null",
         "if ($LASTEXITCODE -ne 0) { throw '7z extraction failed (wrong password?)' }",
@@ -19,7 +19,7 @@
     "uninstaller": {
         "script": [
             "$admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
-            "if ($admin) { Remove-MpPreference -ExclusionPath \"$dir\\_bin\\ALI213\\steam_api.dll\" -ErrorAction SilentlyContinue }"
+            "if ($admin) { powershell.exe -NoProfile -Command \"Remove-MpPreference -ExclusionPath '$dir\\_bin\\ALI213\\steam_api.dll'\" }"
         ]
     },
     "bin": "SACGUI.exe",
