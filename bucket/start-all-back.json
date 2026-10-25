@@ -8,17 +8,19 @@
     "hash": "a760f333f6e3305e7f0e4a09982da129d01003752aa2260513a583f5e5be7b29",
     "installer": {
         "script": [
-            "Start-Process \"$dir\\setup.exe\" -ArgumentList '/silent' -Verb RunAs -Wait",
-            "$target = \"$env:ProgramFiles\\StartAllBack\"",
-            "if (!(Test-Path \"$target\\StartAllBackCfg.exe\")) { throw 'StartAllBack install failed' }",
+            "Start-Process \"$dir\\setup.exe\" -ArgumentList '/silent' -Wait",
+            "$target = $null",
+            "for ($i = 0; $i -lt 30 -and !$target; $i++) { $target = @(\"$env:LOCALAPPDATA\\StartAllBack\", \"$env:ProgramFiles\\StartAllBack\") | Where-Object { Test-Path \"$_\\StartAllBackCfg.exe\" } | Select-Object -First 1; if (!$target) { Start-Sleep 1 } }",
+            "if (!$target) { throw 'StartAllBack install not found' }",
             "Remove-Item $dir -Recurse -Force",
             "New-Item -ItemType Junction -Path $dir -Target $target | Out-Null"
         ]
     },
     "uninstaller": {
         "script": [
+            "$target = (Get-Item $dir).Target",
             "cmd /c rmdir \"$dir\"",
-            "Start-Process \"$env:ProgramFiles\\StartAllBack\\StartAllBackCfg.exe\" -ArgumentList '/uninstall' -Verb RunAs -Wait"
+            "Start-Process \"$target\\StartAllBackCfg.exe\" -ArgumentList '/uninstall' -Wait"
         ]
     },
     "shortcuts": [
