@@ -9,10 +9,12 @@
         "script": [
             "Move-Item \"$dir\\setup.exe\" \"$env:TEMP\\sab-setup.exe\" -Force",
             "$link = \"$env:LOCALAPPDATA\\StartAllBack\"",
-            "if (Test-Path $link) { throw 'StartAllBack already exists in LOCALAPPDATA, uninstall it first' }",
+            "if (Test-Path $link) { if ((Get-Item $link).LinkType -eq 'Junction') { cmd /c rmdir \"$link\" } else { throw 'Real StartAllBack install in LOCALAPPDATA, uninstall it first' } }",
             "New-Item -ItemType Junction -Path $link -Target $dir | Out-Null",
-            "Start-Process \"$env:TEMP\\sab-setup.exe\" -ArgumentList '/silent' -Wait",
-            "if (!(Test-Path \"$dir\\StartAllBackCfg.exe\")) { throw 'StartAllBack files not in scoop dir' }"
+            "$p = Start-Process \"$env:TEMP\\sab-setup.exe\" -ArgumentList '/silent' -PassThru",
+            "$p.WaitForExit(60000) | Out-Null",
+            "if (!(Test-Path \"$dir\\StartAllBackCfg.exe\")) { throw 'StartAllBack files not in scoop dir' }",
+            "if (!$p.HasExited) { $p.Kill() }"
         ]
     },
     "uninstaller": {
