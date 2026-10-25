@@ -1,0 +1,20 @@
+{
+    "version": "2.5.1",
+    "description": "Steam Autocracker GUI (SACGUI), a GUI tool for applying Goldberg emulator to Steam games",
+    "homepage": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI",
+    "license": "MIT",
+    "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v2.5.1/SACGUI-rin.zip",
+    "hash": "5b3a542d58d574167864948dfc26237da0b64152c8adcb1e54b78f09b5f81bbd",
+    "extract_dir": "SACGUI",
+    "bin": "SACGUI.exe",
+    "shortcuts": [
+        [
+            "SACGUI.exe",
+            "SACGUI"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v$version/SACGUI-rin.zip"
+    }
+}
