@@ -1,3 +1,4 @@
+
 {
     "##": "https://www.amazongames.com/en-us/support/prime-gaming/articles/download-and-install-the-amazon-games-app?",
     "version": "3.0.9700.3",
@@ -8,39 +9,57 @@
     "hash": "b5d74ab5a63cfbef2756e9c445b1e939e51a328f17af301b5d7b9a8e9b1d4141",
     "installer": {
         "script": [
-            "$filepath = \"$LocalAppData\\Amazon Games\\App\\Amazon Games.exe\"",
-            "if (((Test-Path -Path $filepath -PathType Leaf) -eq $false) -or ((Get-Command $filepath).Version -lt [System.Version]\"$version\"))",
-            "{",
+            "$source = \"$LocalAppData\\Amazon Games\"",
+            "$filepath = \"$source\\App\\Amazon Games.exe\"",
+
+            "# Run the installer if Amazon Games is missing or outdated",
+            "if (!(Test-Path -LiteralPath $filepath -PathType Leaf) -or ((Get-Command $filepath -ErrorAction SilentlyContinue).Version -lt [System.Version]$version)) {",
             "    Get-Process 'Amazon Games' -ErrorAction SilentlyContinue | Stop-Process -Force",
-            "    $command = \"do {Sleep 1} until (Get-Process 'Amazon Games' -ErrorAction SilentlyContinue); Get-Process 'Amazon Games' | Stop-Process -Force\"",
-            "    Start-Process -FilePath \"powershell.exe\" -ArgumentList $command -WindowStyle Hidden",
+            "    $command = \"do { Sleep 1 } until (Get-Process 'Amazon Games' -ErrorAction SilentlyContinue); Get-Process 'Amazon Games' | Stop-Process -Force\"",
+            "    Start-Process -FilePath 'powershell.exe' -ArgumentList $command -WindowStyle Hidden",
             "    & \"$dir\\setup.exe\" --mode unattended | Out-Null",
-            "    if (((Test-Path -Path $filepath -PathType Leaf) -eq $false) -or ((Get-Command $filepath).Version -lt [System.Version]\"$version\"))",
-            "    {",
-            "        exit 1",
+            "    if (!(Test-Path -LiteralPath $filepath -PathType Leaf) -or ((Get-Command $filepath -ErrorAction SilentlyContinue).Version -lt [System.Version]$version)) {",
+            "        throw 'Amazon Games installation failed or the installed version is outdated.'",
             "    }",
             "}",
-            "$programname = \"Amazon Games\"",
-            "$DesktopPath = [Environment]::GetFolderPath(\"DesktopDirectory\")",
-            "if (Test-Path \"$DesktopPath\\$programname.lnk\") { Remove-Item \"$DesktopPath\\$programname.lnk\" -Force }",
-            "",
-            "# Move Amazon Games data into Scoop's app directory and create a junction",
-            "$source = \"$LocalAppData\\Amazon Games\"",
-            "$target = \"$dir\\Amazon Games\"",
+
+            "# Remove the vendor-created desktop shortcut",
+            "$programname = 'Amazon Games'",
+            "$DesktopPath = [Environment]::GetFolderPath('DesktopDirectory')",
+            "if (Test-Path -LiteralPath \"$DesktopPath\\$programname.lnk\") {",
+            "    Remove-Item -LiteralPath \"$DesktopPath\\$programname.lnk\" -Force",
+            "}",
+
+            "# Stop Amazon Games before moving its files",
             "Get-Process 'Amazon Games' -ErrorAction SilentlyContinue | Stop-Process -Force",
-            "if (-not (Test-Path -LiteralPath $target)) { New-Item -ItemType Directory -Path $target -Force | Out-Null }",
-            "if ((Get-Item -LiteralPath $source -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint) {",
-            "    $existingTarget = (Get-Item -LiteralPath $source -Force).Target",
-            "    if ($existingTarget -and ($existingTarget -contains $target)) { return }",
-            "    throw \"Source is already a reparse point targeting a different location: $source\"",
-            "}",
+
+            "# Move the entire installation into Scoop's active app directory",
+            "$target = \"$dir\"",
             "if (Test-Path -LiteralPath $source) {",
-            "    robocopy $source $target /E /MOVE",
-            "    if ($LASTEXITCODE -ge 8) { throw \"Robocopy failed with exit code $LASTEXITCODE\" }",
-            "    Remove-Item -LiteralPath $source -Recurse -Force -ErrorAction SilentlyContinue",
+            "    $sourceItem = Get-Item -LiteralPath $source -Force",
+            "    if ($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {",
+            "        $existingTarget = (Get-Item -LiteralPath $source -Force).Target",
+            "        if ($existingTarget -and ($existingTarget -contains $target)) {",
+            "            # Already linked to the correct Scoop directory",
+            "        } else {",
+            "            throw \"Amazon Games path is already a link to a different target: $source\"",
+            "        }",
+            "    } else {",
+            "        robocopy $source $target /E /MOVE",
+            "        if ($LASTEXITCODE -ge 8) {",
+            "            throw \"Robocopy failed with exit code $LASTEXITCODE. Check both directories before retrying.\"",
+            "        }",
+            "        Remove-Item -LiteralPath $source -Recurse -Force -ErrorAction SilentlyContinue",
+            "        New-Item -ItemType Junction -Path $source -Target $target | Out-Null",
+            "    }",
+            "} else {",
+            "    New-Item -ItemType Junction -Path $source -Target $target | Out-Null",
             "}",
-            "New-Item -ItemType Junction -Path $source -Target $target | Out-Null",
-            "if (Test-Path -LiteralPath \"$dir\\setup.exe\") { Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force }"
+
+            "# Remove the downloaded installer",
+            "if (Test-Path -LiteralPath \"$dir\\setup.exe\") {",
+            "    Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force",
+            "}"
         ]
     },
     "checkver": {
@@ -52,3 +71,4 @@
         "url": "https://download.amazongames.com/AmazonGamesSetup.exe#/setup.exe"
     }
 }
+
