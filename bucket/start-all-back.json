@@ -8,19 +8,22 @@
     "hash": "a760f333f6e3305e7f0e4a09982da129d01003752aa2260513a583f5e5be7b29",
     "installer": {
         "script": [
-            "Start-Process \"$dir\\setup.exe\" -ArgumentList '/silent' -Wait",
-            "$target = $null",
-            "for ($i = 0; $i -lt 30 -and !$target; $i++) { $target = @(\"$env:LOCALAPPDATA\\StartAllBack\", \"$env:ProgramFiles\\StartAllBack\") | Where-Object { Test-Path \"$_\\StartAllBackCfg.exe\" } | Select-Object -First 1; if (!$target) { Start-Sleep 1 } }",
-            "if (!$target) { throw 'StartAllBack install not found' }",
-            "Remove-Item $dir -Recurse -Force",
-            "New-Item -ItemType Junction -Path $dir -Target $target | Out-Null"
+            "Move-Item \"$dir\\setup.exe\" \"$env:TEMP\\sab-setup.exe\" -Force",
+            "Start-Process \"$env:TEMP\\sab-setup.exe\" -ArgumentList '/silent' -Wait",
+            "$src = \"$env:LOCALAPPDATA\\StartAllBack\"",
+            "if (!(Test-Path \"$src\\StartAllBackCfg.exe\")) { throw 'StartAllBack install not found' }",
+            "Stop-Process -Name explorer, StartAllBackCfg -Force -ErrorAction SilentlyContinue",
+            "robocopy $src $dir /E /MOVE /R:2 /W:1 /NFL /NDL /NJH /NJS | Out-Null",
+            "if ($LASTEXITCODE -ge 8) { throw 'robocopy failed (files still locked?)' }",
+            "cmd /c rmdir /s /q \"$src\"",
+            "New-Item -ItemType Junction -Path $src -Target $dir | Out-Null",
+            "if (!(Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer }"
         ]
     },
     "uninstaller": {
         "script": [
-            "$target = (Get-Item $dir).Target",
-            "cmd /c rmdir \"$dir\"",
-            "Start-Process \"$target\\StartAllBackCfg.exe\" -ArgumentList '/uninstall' -Wait"
+            "winget uninstall -e --id StartIsBack.StartAllBack --silent",
+            "if (Test-Path \"$env:LOCALAPPDATA\\StartAllBack\") { cmd /c rmdir \"$env:LOCALAPPDATA\\StartAllBack\" }"
         ]
     },
     "shortcuts": [
