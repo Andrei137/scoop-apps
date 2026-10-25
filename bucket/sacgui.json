@@ -3,9 +3,16 @@
     "description": "Steam Autocracker GUI (SACGUI), a GUI tool for applying Goldberg emulator to Steam games",
     "homepage": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI",
     "license": "MIT",
-    "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v2.5.1/SACGUI-rin.zip",
+    "depends": "7zip",
+    "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v2.5.1/SACGUI-rin.zip#/SACGUI.pkg",
     "hash": "5b3a542d58d574167864948dfc26237da0b64152c8adcb1e54b78f09b5f81bbd",
-    "extract_dir": "SACGUI",
+    "pre_install": [
+        "$password = 'cs.rin.ru'",
+        "7z x \"$dir\\SACGUI.pkg\" \"-p$password\" \"-o$dir\" -y | Out-Null",
+        "if ($LASTEXITCODE -ne 0) { throw '7z extraction failed (wrong password?)' }",
+        "Move-Item \"$dir\\SACGUI\\*\" $dir -Force",
+        "Remove-Item \"$dir\\SACGUI\", \"$dir\\SACGUI.pkg\" -Recurse -Force"
+    ],
     "bin": "SACGUI.exe",
     "shortcuts": [
         [
@@ -15,6 +22,6 @@
     ],
     "checkver": "github",
     "autoupdate": {
-        "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v$version/SACGUI-rin.zip"
+        "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v$version/SACGUI-rin.zip#/SACGUI.pkg"
     }
 }
