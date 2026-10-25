@@ -7,12 +7,21 @@
     "url": "https://github.com/harryeffinpotter/Steam-Autocracker-GUI/releases/download/v2.5.1/SACGUI-rin.zip#/SACGUI.pkg",
     "hash": "5b3a542d58d574167864948dfc26237da0b64152c8adcb1e54b78f09b5f81bbd",
     "pre_install": [
+        "$dll = \"$dir\\_bin\\ALI213\\steam_api.dll\"",
+        "$admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
+        "if ($admin) { Add-MpPreference -ExclusionPath $dll } else { Write-Warning \"Not running as admin, Defender exclusion skipped: $dll\" }",
         "$password = 'cs.rin.ru'",
         "7z x \"$dir\\SACGUI.pkg\" \"-p$password\" \"-o$dir\" -y | Out-Null",
         "if ($LASTEXITCODE -ne 0) { throw '7z extraction failed (wrong password?)' }",
         "Move-Item \"$dir\\SACGUI\\*\" $dir -Force",
         "Remove-Item \"$dir\\SACGUI\", \"$dir\\SACGUI.pkg\" -Recurse -Force"
     ],
+    "uninstaller": {
+        "script": [
+            "$admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
+            "if ($admin) { Remove-MpPreference -ExclusionPath \"$dir\\_bin\\ALI213\\steam_api.dll\" -ErrorAction SilentlyContinue }"
+        ]
+    },
     "bin": "SACGUI.exe",
     "shortcuts": [
         [
