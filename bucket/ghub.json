@@ -1,0 +1,52 @@
+{
+    "version": "latest",
+    "description": "Logitech G HUB, configuration software for Logitech G gaming mice, keyboards and headsets.",
+    "homepage": "https://www.logitechg.com/en-us/innovation/g-hub.html",
+    "license": "Proprietary",
+    "notes": [
+        "Logitech only provides a fixed URL that always points to the latest installer, so there is no hash, checkver or autoupdate.",
+        "Requires an elevated shell because G HUB installs to %ProgramFiles%\\LGHUB.",
+        "To update, run: scoop reinstall lghub"
+    ],
+    "url": "https://download01.logi.com/web/ftp/pub/techsupport/gaming/lghub_installer.exe#/setup.exe",
+    "installer": {
+        "script": [
+            "$source = \"$env:ProgramFiles\\LGHUB\"",
+            "$exe = \"$source\\lghub.exe\"",
+
+            "# If a previous junction exists, remove only the link so the installer writes to the real default location",
+            "if ((Test-Path -LiteralPath $source) -and ((Get-Item -LiteralPath $source -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {",
+            "    cmd /c rmdir \"$source\"",
+            "}",
+
+            "# Install to the usual place",
+            "& \"$dir\\setup.exe\" --silent | Out-Null",
+            "if (!(Test-Path -LiteralPath $exe -PathType Leaf)) { throw 'G HUB installation failed.' }",
+
+            "# Stop the app and its services so the files can be moved",
+            "Get-Service -Name '*lghub*' -ErrorAction SilentlyContinue | Stop-Service -Force -ErrorAction SilentlyContinue",
+            "Get-Process -Name 'lghub*' -ErrorAction SilentlyContinue | Stop-Process -Force",
+
+            "# Move everything into the Scoop app dir",
+            "robocopy $source $dir /E /MOVE /NFL /NDL /NJH /NJS /NP | Out-Null",
+            "if ($LASTEXITCODE -ge 8) { throw \"Robocopy failed with exit code $LASTEXITCODE\" }",
+            "Remove-Item -LiteralPath $source -Recurse -Force -ErrorAction SilentlyContinue",
+
+            "# Link the original location to the Scoop dir",
+            "New-Item -ItemType Junction -Path $source -Target $dir | Out-Null",
+            "Get-Service -Name '*lghub*' -ErrorAction SilentlyContinue | Start-Service -ErrorAction SilentlyContinue",
+
+            "Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force -ErrorAction SilentlyContinue"
+        ]
+    },
+    "uninstaller": {
+        "script": [
+            "$source = \"$env:ProgramFiles\\LGHUB\"",
+            "Get-Process -Name 'lghub*' -ErrorAction SilentlyContinue | Stop-Process -Force",
+
+            "# Run the vendor uninstaller through the link, then remove only the link",
+            "if (Test-Path -LiteralPath \"$source\\lghub_updater.exe\") { & \"$source\\lghub_updater.exe\" --uninstall --full | Out-Null }",
+            "if ((Test-Path -LiteralPath $source) -and ((Get-Item -LiteralPath $source -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { cmd /c rmdir \"$source\" }"
+        ]
+    }
+}
