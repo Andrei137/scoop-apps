@@ -1,0 +1,38 @@
+{
+    "version": "3.0.2.3",
+    "description": "Advanced Nvidia driver profile inspector and editor for Windows.",
+    "homepage": "https://github.com/Orbmu2k/nvidiaProfileInspector",
+    "license": "MIT",
+    "url": "https://github.com/Orbmu2k/nvidiaProfileInspector/releases/download/v3.0.2.3/nvidiaProfileInspector.zip",
+    "hash": "e2d12f0956377efd0021bf5b1f63e5b05ecd6732a311274db679dbe598ad4e61",
+    "bin": "nvidiaProfileInspector.exe",
+    "shortcuts": [
+        [
+            "nvidiaProfileInspector.exe",
+            "NVIDIA Profile Inspector"
+        ]
+    ],
+    "post_install": [
+        "$currentDir = Join-Path (Split-Path $dir) 'current'",
+        "$desktop = [Environment]::GetFolderPath('Desktop')",
+        "$wsh = New-Object -ComObject WScript.Shell",
+        "$lnk = $wsh.CreateShortcut(\"$desktop\\NVIDIA Profile Inspector.lnk\")",
+        "$lnk.TargetPath = \"$currentDir\\nvidiaProfileInspector.exe\"",
+        "$lnk.WorkingDirectory = \"$currentDir\"",
+        "$lnk.Save()",
+        "Get-ChildItem (Split-Path $dir) -Directory | Where-Object { $_.Name -ne 'current' -and $_.Name -ne $version } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue"
+    ],
+    "pre_uninstall": [
+        "$desktop = [Environment]::GetFolderPath('Desktop')",
+        "Remove-Item \"$desktop\\NVIDIA Profile Inspector.lnk\" -Force -ErrorAction SilentlyContinue"
+    ],
+    "notes": "Desktop and Start Menu shortcuts are created automatically. Profiles are stored in the NVIDIA driver, not in the install directory. Package maintained by AmirulAndalib (https://github.com/AmirulAndalib).",
+    "checkver": {
+        "url": "https://api.github.com/repos/Orbmu2k/nvidiaProfileInspector/releases?per_page=1",
+        "jsonpath": "$[0].tag_name",
+        "regex": "v([\\d.]+)"
+    },
+    "autoupdate": {
+        "url": "https://github.com/Orbmu2k/nvidiaProfileInspector/releases/download/v$version/nvidiaProfileInspector.zip"
+    }
+}
