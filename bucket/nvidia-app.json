@@ -12,24 +12,23 @@
         "script": [
             "$target = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\\CEF\"",
             "$store = \"$dir\\CEF\"",
-
+            "$appDir = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\"",
             "# If a previous junction exists, remove only the link so the installer writes to the real default location",
             "if ((Test-Path -LiteralPath $target) -and ((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {",
             "    cmd /c rmdir \"$target\"",
             "}",
-
             "# Install to the usual place",
             "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s' -Wait -Verb RunAs | Out-Null",
             "if (!(Test-Path -LiteralPath $target -PathType Container)) { throw 'NVIDIA app installation failed: CEF folder not found.' }",
-
-            "# Stop the app so files can be moved",
-            "Get-Process 'NVIDIA app', 'NVIDIA Overlay' -ErrorAction SilentlyContinue | Stop-Process -Force",
-
+            "# Stop everything running from the install folder so files can be moved",
+            "Start-Sleep 5",
+            "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -like \"$appDir\\*\" } | Stop-Process -Force",
+            "Start-Sleep 2",
             "# Move CEF into the Scoop app dir",
-            "robocopy $target $store /E /MOVE /NFL /NDL /NJH /NJS /NP | Out-Null",
+            "robocopy $target $store /E /MOVE /R:2 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null",
             "if ($LASTEXITCODE -ge 8) { throw \"Robocopy failed with exit code $LASTEXITCODE\" }",
             "Remove-Item -LiteralPath $target -Recurse -Force -ErrorAction SilentlyContinue",
-
+            "if (Test-Path -LiteralPath $target) { throw 'Could not remove original CEF folder (files still locked).' }",
             "# Link the original location to the Scoop dir",
             "New-Item -ItemType Junction -Path $target -Target $store | Out-Null",
             "Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force -ErrorAction SilentlyContinue"
@@ -38,7 +37,8 @@
     "uninstaller": {
         "script": [
             "$target = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\\CEF\"",
-            "Get-Process 'NVIDIA app', 'NVIDIA Overlay' -ErrorAction SilentlyContinue | Stop-Process -Force",
+            "$appDir = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\"",
+            "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -like \"$appDir\\*\" } | Stop-Process -Force",
             "if ((Test-Path -LiteralPath $target) -and ((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { cmd /c rmdir \"$target\" }"
         ]
     },
