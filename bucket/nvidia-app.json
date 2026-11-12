@@ -23,9 +23,15 @@
             "New-Item -ItemType Junction -Path $target -Target $store | Out-Null",
             "# Install",
             "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s' -Wait -Verb RunAs | Out-Null",
-            "# Verify the installer wrote into the junction and did not replace it",
-            "if (!(Test-Path -LiteralPath \"$store\\*\")) { throw 'Installer did not write CEF into the junction.' }",
-            "if (!((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Installer replaced the CEF junction with a real folder.' }",
+            "# Wait for the installer to write into the junction, fail if it replaced the junction",
+            "$sw = [Diagnostics.Stopwatch]::StartNew()",
+            "while ($sw.Elapsed.TotalSeconds -lt 300) {",
+            "    if (!((Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Installer replaced the CEF junction with a real folder.' }",
+            "    if (Get-ChildItem -LiteralPath $store -Force -ErrorAction SilentlyContinue | Select-Object -First 1) { break }",
+            "    Start-Sleep 3",
+            "}",
+            "if (!(Get-ChildItem -LiteralPath $store -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) { throw 'Installer did not write CEF into the junction (timed out).' }",
+            "Start-Sleep 20",
             "Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force -ErrorAction SilentlyContinue"
         ]
     },
