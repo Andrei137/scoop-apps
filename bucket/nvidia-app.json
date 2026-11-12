@@ -6,13 +6,40 @@
         "identifier": "Proprietary",
         "url": "https://www.nvidia.com/en-us/about-nvidia/eula-agreement"
     },
-    "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe",
+    "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe#/setup.exe",
     "hash": "d70cc78e9f4d89326dd106bdaeaa01c190b9354afa3136f6543c64743139576a",
     "installer": {
         "script": [
-            "$args = @('-s')",
-            "Start-Process \"$dir\\$fname\" -ArgumentList $args -Wait -Verb RunAs | Out-Null",
-            "Remove-Item \"$dir\\$fname\""
+            "$target = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\\CEF\"",
+            "$store = \"$dir\\CEF\"",
+
+            "# If a previous junction exists, remove only the link so the installer writes to the real default location",
+            "if ((Test-Path -LiteralPath $target) -and ((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {",
+            "    cmd /c rmdir \"$target\"",
+            "}",
+
+            "# Install to the usual place",
+            "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s' -Wait -Verb RunAs | Out-Null",
+            "if (!(Test-Path -LiteralPath $target -PathType Container)) { throw 'NVIDIA app installation failed: CEF folder not found.' }",
+
+            "# Stop the app so files can be moved",
+            "Get-Process 'NVIDIA app', 'NVIDIA Overlay' -ErrorAction SilentlyContinue | Stop-Process -Force",
+
+            "# Move CEF into the Scoop app dir",
+            "robocopy $target $store /E /MOVE /NFL /NDL /NJH /NJS /NP | Out-Null",
+            "if ($LASTEXITCODE -ge 8) { throw \"Robocopy failed with exit code $LASTEXITCODE\" }",
+            "Remove-Item -LiteralPath $target -Recurse -Force -ErrorAction SilentlyContinue",
+
+            "# Link the original location to the Scoop dir",
+            "New-Item -ItemType Junction -Path $target -Target $store | Out-Null",
+            "Remove-Item -LiteralPath \"$dir\\setup.exe\" -Force -ErrorAction SilentlyContinue"
+        ]
+    },
+    "uninstaller": {
+        "script": [
+            "$target = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\\CEF\"",
+            "Get-Process 'NVIDIA app', 'NVIDIA Overlay' -ErrorAction SilentlyContinue | Stop-Process -Force",
+            "if ((Test-Path -LiteralPath $target) -and ((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { cmd /c rmdir \"$target\" }"
         ]
     },
     "checkver": {
@@ -20,6 +47,6 @@
         "replace": "${version}"
     },
     "autoupdate": {
-        "url": "https://us.download.nvidia.com/nvapp/client/$version/NVIDIA_app$matchBeta_v$version.exe"
+        "url": "https://us.download.nvidia.com/nvapp/client/$version/NVIDIA_app$matchBeta_v$version.exe#/setup.exe"
     }
 }
