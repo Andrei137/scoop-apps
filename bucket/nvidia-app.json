@@ -1,37 +1,20 @@
 {
     "version": "11.0.9.565",
-    "description": "NVIDIA app (installed into the Scoop dir, junctioned into Program Files)",
+    "description": "NVIDIA app (wrapper: installs to Program Files, Scoop tracks the version)",
     "homepage": "https://www.nvidia.com/en-us/software/nvidia-app/",
     "license": "Freeware",
     "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe#/setup.exe",
-    "hash": "d70cc78e9f4d89326dd106bdaeaa01c190b9354afa3136f6543c64743139576a",
-    "pre_install": [
-        "$pf = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\"",
-        "New-Item -ItemType Directory -Force \"$dir\\app\" | Out-Null",
-        "New-Item -ItemType Directory -Force (Split-Path $pf) | Out-Null",
-        "if (Test-Path $pf) { Remove-Item $pf -Recurse -Force }",
-        "New-Item -ItemType Junction -Path $pf -Target \"$dir\\app\" | Out-Null"
-    ],
+    "hash": "REPLACE_WITH_SHA256",
     "installer": {
-        "script": [
-            "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s','-noreboot','-noeula' -Wait",
-            "$pf = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\"",
-            "$t = (Get-Item $pf).Target",
-            "if (-not $t) {",
-            "    # installer replaced the junction with a real dir: move it into scoop and relink",
-            "    Copy-Item \"$pf\\*\" \"$dir\\app\" -Recurse -Force",
-            "    Remove-Item $pf -Recurse -Force",
-            "    New-Item -ItemType Junction -Path $pf -Target \"$dir\\app\" | Out-Null",
-            "}"
-        ]
+        "script": "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s','-noreboot','-noeula' -Wait"
     },
-    "pre_uninstall": [
-        "Get-Process | Where-Object { $_.Path -like \"$dir\\app\\*\" } | Stop-Process -Force -ErrorAction SilentlyContinue"
-    ],
     "uninstaller": {
         "script": [
-            "$pf = \"$env:ProgramFiles\\NVIDIA Corporation\\NVIDIA App\"",
-            "if ((Get-Item $pf -ErrorAction SilentlyContinue).Target) { (Get-Item $pf).Delete() }"
+            "if ($cmd -eq 'uninstall') {",
+            "    $keys = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*','HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'",
+            "    $e = Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object DisplayName -like 'NVIDIA app*' | Select-Object -First 1",
+            "    if ($e) { Start-Process cmd -ArgumentList '/c', \"$($e.UninstallString) -s\" -Wait }",
+            "}"
         ]
     },
     "checkver": {

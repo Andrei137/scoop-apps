@@ -5,8 +5,8 @@
     "license": "Freeware",
     "architecture": {
         "64bit": {
-            "url": "https://malupdater.com/get/6b03b48636efb39efdfbaf087eefa30e/MALUpdater-4.1.0.4613-setup.exe",
-            "hash": "15d0fd5bc5e9178ee60b885f87fa49b78a27013a299439b54aa682fb56ade2fd"
+            "url": "https://malupdater.com/get/6b03c00df95fc403b349e6b95f4688f7/MALUpdater-4.1.0.4613-setup.exe",
+            "hash": "829887cb9c9c9a853299f1a6854784bc03fdccbc99fdbbda3abed6b7d2d21663"
         }
     },
     "innosetup": true,
