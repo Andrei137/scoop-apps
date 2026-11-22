@@ -1,0 +1,31 @@
+{
+    "version": "4.1.0.4613",
+    "description": "MAL Updater 4 - MyAnimeList/AniList scrobbler and list manager",
+    "homepage": "https://malupdater.com/malupdater-4",
+    "license": "Freeware",
+    "architecture": {
+        "64bit": {
+            "url": "https://malupdater.com/get/6b03b48636efb39efdfbaf087eefa30e/MALUpdater-4.1.0.4613-setup.exe",
+            "hash": "15d0fd5bc5e9178ee60b885f87fa49b78a27013a299439b54aa682fb56ade2fd"
+        }
+    },
+    "innosetup": true,
+    "shortcuts": [
+        [
+            "MALUpdater.exe",
+            "MAL Updater"
+        ]
+    ],
+    "checkver": {
+        "url": "https://malupdater.com/malupdater-4",
+        "regex": "get/(?<token>[a-f0-9]{32})/MALUpdater-(?<ver>[\\d.]+)-setup\\.exe",
+        "replace": "${ver}"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://malupdater.com/get/$matchToken/MALUpdater-$version-setup.exe"
+            }
+        }
+    }
+}
