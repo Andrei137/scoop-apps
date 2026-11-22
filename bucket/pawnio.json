@@ -3,10 +3,6 @@
     "description": "PawnIO is a scriptable universal kernel driver, allowing hardware access to a wide variety of programs.",
     "homepage": "https://pawnio.eu",
     "license": "MIT",
-    "suggest": {
-        "G-Helper (Experimental)": "g-helper-experimental",
-        "THRM": "thrm"
-    },
     "architecture": {
         "64bit": {
             "url": "https://github.com/namazso/PawnIO.Setup/releases/download/2.2.0/PawnIO_setup.exe",
