@@ -4,7 +4,7 @@
     "homepage": "https://www.nvidia.com/en-us/software/nvidia-app/",
     "license": "Freeware",
     "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe#/setup.exe",
-    "hash": "REPLACE_WITH_SHA256",
+    "hash": "d70cc78e9f4d89326dd106bdaeaa01c190b9354afa3136f6543c64743139576a",
     "installer": {
         "script": "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s','-noreboot','-noeula' -Wait"
     },
