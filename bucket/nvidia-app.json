@@ -3,10 +3,13 @@
     "description": "NVIDIA app (wrapper: installs to Program Files, Scoop tracks the version)",
     "homepage": "https://www.nvidia.com/en-us/software/nvidia-app/",
     "license": "Freeware",
-    "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe#/setup.exe",
+    "url": "https://us.download.nvidia.com/nvapp/client/11.0.9.565/NVIDIA_app_v11.0.9.565.exe#/dl.7z",
     "hash": "d70cc78e9f4d89326dd106bdaeaa01c190b9354afa3136f6543c64743139576a",
     "installer": {
-        "script": "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s','-noreboot','-noeula' -Wait"
+        "script": [
+            "Start-Process \"$dir\\setup.exe\" -ArgumentList '-s','-noreboot','-noeula','-nofinish' -Wait",
+            "Get-Process setup -ErrorAction SilentlyContinue | Wait-Process"
+        ]
     },
     "uninstaller": {
         "script": [
@@ -22,6 +25,6 @@
         "regex": "nvapp/client/([\\d.]+)/NVIDIA_app_v[\\d.]+\\.exe"
     },
     "autoupdate": {
-        "url": "https://us.download.nvidia.com/nvapp/client/$version/NVIDIA_app_v$version.exe#/setup.exe"
+        "url": "https://us.download.nvidia.com/nvapp/client/$version/NVIDIA_app_v$version.exe#/dl.7z"
     }
 }
