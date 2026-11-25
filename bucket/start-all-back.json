@@ -4,7 +4,7 @@
     "homepage": "https://www.startallback.com/",
     "license": "Proprietary",
     "url": "https://startisback.sfo3.cdn.digitaloceanspaces.com/StartAllBack_3.9.29_setup.exe#/setup.exe",
-    "hash": "203c12b2029e3722c8220657b2a22bc3ff2997d3afdd1530cc16dfc27d0cd89d",
+    "hash": "f6ac577834e948c0145cb7bfe5744ae029106bb108d3df909097fda4f170e7b8",
     "installer": {
         "script": [
             "Move-Item \"$dir\\setup.exe\" \"$env:TEMP\\sab-setup.exe\" -Force",
